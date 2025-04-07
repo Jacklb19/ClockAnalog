@@ -1,0 +1,6 @@
+{
+    "python.analysis.extraPaths": [
+        "./clock-logic",
+        "./interface"
+    ]
+}
