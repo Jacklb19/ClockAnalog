@@ -21,6 +21,7 @@ def run_clock():
     canvas = tk.Canvas(root, highlightthickness=0, bg=bg_dark if dark_mode else bg_light)
     canvas.pack(fill="both", expand=True)
 
+    # --- Zona horaria ---
     timezones = ["UTC", "America/Bogota", "America/New_York", "Europe/London", "Europe/Madrid",
                  "Asia/Tokyo", "Asia/Kolkata", "Australia/Sydney"]
     selected_timezone = tk.StringVar(value="UTC")
@@ -33,10 +34,34 @@ def run_clock():
     tz_menu.config(bg="gray20", fg="white", highlightbackground="black", activebackground="gray")
     tz_menu.place(x=100, y=5)
 
-    digital_clock_label = tk.Label(root, text="", font=("Consolas", 10),
+    # --- Marco inferior para la hora digital y la fecha ---
+    bottom_frame = tk.Frame(root, bg=bg_dark if dark_mode else bg_light, height=40)
+    bottom_frame.place(relx=0, rely=1.0, anchor="sw", relwidth=1.0)
+    
+    digital_clock_label = tk.Label(bottom_frame, text="", font=("Consolas", 10),
                                    bg=bg_dark if dark_mode else bg_light,
                                    fg=fg_dark if dark_mode else fg_light)
-    digital_clock_label.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-10)
+    digital_clock_label.pack(side="right", padx=10, pady=5)
+    
+    date_label = tk.Label(bottom_frame, text="", font=("Helvetica", 10),
+                          bg=bg_dark if dark_mode else bg_light,
+                          fg=fg_dark if dark_mode else fg_light)
+    date_label.pack(side="left", padx=10, pady=5)
+
+    # --- Controles adicionales ---
+    show_numbers = tk.BooleanVar(value=True)
+    modern_style = tk.BooleanVar(value=False)
+
+    chk_numbers = tk.Checkbutton(root, text="Mostrar Números", variable=show_numbers,
+                                 bg=bg_dark, fg=fg_dark,
+                                 selectcolor=bg_dark if dark_mode else bg_light,
+                                 command=lambda: draw_clock_face())
+    chk_numbers.place(x=10, y=35)
+
+    chk_style = tk.Checkbutton(root, text="Manecillas modernas", variable=modern_style,
+                               bg=bg_dark, fg=fg_dark,
+                               selectcolor=bg_dark if dark_mode else bg_light)
+    chk_style.place(x=10, y=60)
 
     def toggle_mode():
         nonlocal dark_mode
@@ -45,8 +70,18 @@ def run_clock():
         canvas.configure(bg=bg_dark if dark_mode else bg_light)
         label_tz.configure(bg=bg_dark if dark_mode else bg_light, fg=fg_dark if dark_mode else fg_light)
         tz_menu.configure(bg="gray20" if dark_mode else "lightgray", fg="white" if dark_mode else "black")
+        # Actualizar el fondo del marco inferior y sus etiquetas:
+        bottom_frame.configure(bg=bg_dark if dark_mode else bg_light)
         digital_clock_label.configure(bg=bg_dark if dark_mode else bg_light,
                                       fg=fg_dark if dark_mode else fg_light)
+        date_label.configure(bg=bg_dark if dark_mode else bg_light,
+                             fg=fg_dark if dark_mode else fg_light)
+        chk_numbers.configure(bg=bg_dark if dark_mode else bg_light,
+                              fg=fg_dark if dark_mode else fg_light,
+                              selectcolor=bg_dark if dark_mode else bg_light)
+        chk_style.configure(bg=bg_dark if dark_mode else bg_light,
+                            fg=fg_dark if dark_mode else fg_light,
+                            selectcolor=bg_dark if dark_mode else bg_light)
         draw_clock_face()
 
     btn_mode = tk.Button(root, text="☀ / 🌙", command=toggle_mode)
@@ -61,8 +96,8 @@ def run_clock():
     second_hand = canvas.create_line(0, 0, 0, 0, width=1, fill="red", capstyle=tk.ROUND)
     center_dot = canvas.create_oval(0, 0, 0, 0, fill="red", outline="red", tags="center")
 
-    last_second = -1
-    updating = False  # Variable de control para evitar duplicados
+    last_second = [-1]
+    updating = [False]
 
     def draw_clock_face():
         canvas.delete("face")
@@ -79,62 +114,73 @@ def run_clock():
             color = "#333" if dark_mode else "#aaa" if i % 5 != 0 else "#555"
             canvas.create_oval(x - r, y - r, x + r, y + r, fill=color, outline=color, tags="face")
 
-        for i in range(1, 13):
-            angle = math.radians(i * 30 - 90)
-            x = cx + math.cos(angle) * (radius - 30)
-            y = cy + math.sin(angle) * (radius - 30)
-            color = fg_dark if dark_mode else fg_light
-            canvas.create_text(x, y, text=str(i), font=("Helvetica", 12, "bold"), fill=color, tags="face")
+        if show_numbers.get():
+            for i in range(1, 13):
+                angle = math.radians(i * 30 - 90)
+                x = cx + math.cos(angle) * (radius - 30)
+                y = cy + math.sin(angle) * (radius - 30)
+                color = fg_dark if dark_mode else fg_light
+                canvas.create_text(x, y, text=str(i), font=("Helvetica", 12, "bold"), fill=color, tags="face")
 
         canvas.coords(center_dot, cx - 4, cy - 4, cx + 4, cy + 4)
 
     def update_clock():
-        nonlocal last_second, updating
-
-        if updating:  # Si ya se está ejecutando, no hacer nada
+        if updating[0]:
             return
-        updating = True  # Marcar que la función está en ejecución
+        updating[0] = True
 
         try:
             tz = pytz.timezone(selected_timezone.get())
             now = datetime.datetime.now(tz)
-        except Exception as e:
+        except Exception:
             now = datetime.datetime.utcnow()
 
         hour = now.hour % 12 + now.minute / 60
         minute = now.minute + now.second / 60
-        second = now.second 
+        second = now.second
 
         w = canvas.winfo_width()
         h = canvas.winfo_height()
         cx, cy = w // 2, h // 2
         radius = min(w, h) // 2 - 20
 
+        if modern_style.get():
+            hour_len = 0.4
+            min_len = 0.65
+            sec_len = 0.75
+        else:
+            hour_len = 0.5
+            min_len = 0.72
+            sec_len = 0.88
+
         angle_hour = math.radians(hour * 30 - 90)
         angle_minute = math.radians(minute * 6 - 90)
         angle_second = math.radians(second * 6 - 90)
 
-        x_hour = cx + math.cos(angle_hour) * radius * 0.5
-        y_hour = cy + math.sin(angle_hour) * radius * 0.5
-        x_minute = cx + math.cos(angle_minute) * radius * 0.72
-        y_minute = cy + math.sin(angle_minute) * radius * 0.72
-        x_second = cx + math.cos(angle_second) * radius * 0.88
-        y_second = cy + math.sin(angle_second) * radius * 0.88
+        canvas.coords(hour_hand, cx, cy,
+                      cx + math.cos(angle_hour) * radius * hour_len,
+                      cy + math.sin(angle_hour) * radius * hour_len)
+        canvas.coords(minute_hand, cx, cy,
+                      cx + math.cos(angle_minute) * radius * min_len,
+                      cy + math.sin(angle_minute) * radius * min_len)
+        canvas.coords(second_hand, cx, cy,
+                      cx + math.cos(angle_second) * radius * sec_len,
+                      cy + math.sin(angle_second) * radius * sec_len)
 
-        canvas.coords(hour_hand, cx, cy, x_hour, y_hour)
-        canvas.coords(minute_hand, cx, cy, x_minute, y_minute)
-        canvas.coords(second_hand, cx, cy, x_second, y_second)
-
-        if int(second) != last_second:
+        if int(second) != last_second[0]:
             clock_sound.play()
-            last_second = int(second)
+            last_second[0] = int(second)
 
         digital_clock_label.config(text=now.strftime("%H:%M:%S"))
+        date_label.config(text=now.strftime("%d %B %Y"))
 
-        updating = False  # Liberar la variable de control
+        updating[0] = False
         root.after(1000, update_clock)
 
     canvas.bind("<Configure>", lambda e: [draw_clock_face(), update_clock()])
     draw_clock_face()
     update_clock()
     root.mainloop()
+
+if __name__ == "__main__":
+    run_clock()
