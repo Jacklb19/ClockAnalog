@@ -21,7 +21,6 @@ def run_clock():
     canvas = tk.Canvas(root, highlightthickness=0, bg=bg_dark if dark_mode else bg_light)
     canvas.pack(fill="both", expand=True)
 
-    # --- Zona horaria ---
     timezones = ["UTC", "America/Bogota", "America/New_York", "Europe/London", "Europe/Madrid",
                  "Asia/Tokyo", "Asia/Kolkata", "Australia/Sydney"]
     selected_timezone = tk.StringVar(value="UTC")
@@ -34,7 +33,6 @@ def run_clock():
     tz_menu.config(bg="gray20", fg="white", highlightbackground="black", activebackground="gray")
     tz_menu.place(x=100, y=5)
 
-    # --- Marco inferior para la hora digital y la fecha ---
     bottom_frame = tk.Frame(root, bg=bg_dark if dark_mode else bg_light, height=40)
     bottom_frame.place(relx=0, rely=1.0, anchor="sw", relwidth=1.0)
     
@@ -48,7 +46,6 @@ def run_clock():
                           fg=fg_dark if dark_mode else fg_light)
     date_label.pack(side="left", padx=10, pady=5)
 
-    # --- Controles adicionales ---
     show_numbers = tk.BooleanVar(value=True)
     modern_style = tk.BooleanVar(value=False)
 
@@ -70,7 +67,7 @@ def run_clock():
         canvas.configure(bg=bg_dark if dark_mode else bg_light)
         label_tz.configure(bg=bg_dark if dark_mode else bg_light, fg=fg_dark if dark_mode else fg_light)
         tz_menu.configure(bg="gray20" if dark_mode else "lightgray", fg="white" if dark_mode else "black")
-        # Actualizar el fondo del marco inferior y sus etiquetas:
+
         bottom_frame.configure(bg=bg_dark if dark_mode else bg_light)
         digital_clock_label.configure(bg=bg_dark if dark_mode else bg_light,
                                       fg=fg_dark if dark_mode else fg_light)
@@ -91,10 +88,10 @@ def run_clock():
     for i in range(1, 13):
         clock_segments.insert_segment_at_end(i)
 
-    hour_hand = canvas.create_line(0, 0, 0, 0, width=5, fill="#666", capstyle=tk.ROUND)
-    minute_hand = canvas.create_line(0, 0, 0, 0, width=3, fill="#888", capstyle=tk.ROUND)
-    second_hand = canvas.create_line(0, 0, 0, 0, width=1, fill="red", capstyle=tk.ROUND)
-    center_dot = canvas.create_oval(0, 0, 0, 0, fill="red", outline="red", tags="center")
+    hour_hand = canvas.create_line(0, 0, 0, 0, capstyle=tk.ROUND)
+    minute_hand = canvas.create_line(0, 0, 0, 0, capstyle=tk.ROUND)
+    second_hand = canvas.create_line(0, 0, 0, 0, capstyle=tk.ROUND)
+    center_dot = canvas.create_oval(0, 0, 0, 0,  tags="center")
 
     last_second = [-1]
     updating = [False]
@@ -148,10 +145,18 @@ def run_clock():
             hour_len = 0.4
             min_len = 0.65
             sec_len = 0.75
+            canvas.itemconfig(hour_hand, width=5, fill="#666")
+            canvas.itemconfig(minute_hand, width=3, fill="#888")
+            canvas.itemconfig(second_hand, width=1, fill="red")
+            canvas.itemconfig(center_dot, fill="red", outline="red")
         else:
             hour_len = 0.5
             min_len = 0.72
-            sec_len = 0.88
+            sec_len = 0.75
+            canvas.itemconfig(hour_hand, width=5, fill="#666")
+            canvas.itemconfig(minute_hand, width=3, fill="#888")
+            canvas.itemconfig(second_hand, width=1, fill="#777")
+            canvas.itemconfig(center_dot, fill="white", outline="black")
 
         angle_hour = math.radians(hour * 30 - 90)
         angle_minute = math.radians(minute * 6 - 90)
