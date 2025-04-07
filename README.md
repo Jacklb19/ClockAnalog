@@ -16,7 +16,7 @@ Este proyecto es un reloj analógico minimalista desarrollado en Python con Tkin
 
 - **Reloj Digital y Fecha:**  
   - Se muestra la hora digital en la esquina inferior derecha.  
-  - Se muestra la fecha (día, mes y año) en un área separada, para evitar solapamientos con el reloj analógico.
+  - Se muestra la fecha (día, mes y año) en la esquina inferior izquierda.
 
 - **Opciones de Estilo del Reloj:**  
   - **Mostrar/Ocultar Números:** Opción para alternar la visualización de los números en el dial del reloj.  
@@ -27,7 +27,7 @@ Este proyecto es un reloj analógico minimalista desarrollado en Python con Tkin
 
 ## Requisitos
 
-- Python 3.x
+- Python 3.11
 - Tkinter (incluido en la mayoría de las instalaciones de Python)
 - [Pygame](https://www.pygame.org/) para la reproducción del sonido  
   ```bash
