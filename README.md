@@ -27,7 +27,7 @@ Este proyecto es un reloj analógico minimalista desarrollado en Python con Tkin
 
 ## Requisitos
 
-- Python 3.x
+- Python 3.11 (Usada en este caso)
 - Tkinter (incluido en la mayoría de las instalaciones de Python)
 - pygame (para la reproducción del sonido)
 - pytz (para el manejo de zonas horarias)
