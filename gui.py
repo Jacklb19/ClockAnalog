@@ -62,6 +62,7 @@ def run_clock():
     center_dot = canvas.create_oval(0, 0, 0, 0, fill="red", outline="red", tags="center")
 
     last_second = -1
+    updating = False  # Variable de control para evitar duplicados
 
     def draw_clock_face():
         canvas.delete("face")
@@ -88,7 +89,11 @@ def run_clock():
         canvas.coords(center_dot, cx - 4, cy - 4, cx + 4, cy + 4)
 
     def update_clock():
-        nonlocal last_second
+        nonlocal last_second, updating
+
+        if updating:  # Si ya se está ejecutando, no hacer nada
+            return
+        updating = True  # Marcar que la función está en ejecución
 
         try:
             tz = pytz.timezone(selected_timezone.get())
@@ -96,9 +101,9 @@ def run_clock():
         except Exception as e:
             now = datetime.datetime.utcnow()
 
-        hour = now.hour % 12 + now.minute / 60 + now.second / 3600
+        hour = now.hour % 12 + now.minute / 60
         minute = now.minute + now.second / 60
-        second = now.second + now.microsecond / 1_000_000
+        second = now.second 
 
         w = canvas.winfo_width()
         h = canvas.winfo_height()
@@ -126,9 +131,10 @@ def run_clock():
 
         digital_clock_label.config(text=now.strftime("%H:%M:%S"))
 
-        root.after(50, update_clock)
+        updating = False  # Liberar la variable de control
+        root.after(1000, update_clock)
 
-    canvas.bind("<Configure>", lambda e: draw_clock_face())
+    canvas.bind("<Configure>", lambda e: [draw_clock_face(), update_clock()])
     draw_clock_face()
     update_clock()
     root.mainloop()
