@@ -21,6 +21,7 @@ Este proyecto es un reloj analógico minimalista desarrollado en Python con Tkin
 - **Opciones de Estilo del Reloj:**  
   - **Mostrar/Ocultar Números:** Opción para alternar la visualización de los números en el dial del reloj.  
   - **Cambio de Estilo de Manecillas:** Permite cambiar entre un estilo "Clásico" y "Moderno" (se ajustan las longitudes y grosores de las manecillas).
+  - **Cambio de Estilo de Numeros:** Permite cambiar entre numeros romanos.
 
 - **Sonido de Tic-Tac:**  
   - Se reproduce un sonido (tic) cada segundo para simular el sonido de un reloj real.
