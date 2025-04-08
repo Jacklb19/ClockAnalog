@@ -8,6 +8,17 @@ from clock_logic import ClockCircularList
 pygame.mixer.init()
 clock_sound = pygame.mixer.Sound("tic.mp3")
 
+def to_roman(num):
+    roman_symbols = [
+        ('XII', 12), ('XI', 11), ('X', 10), ('IX', 9),
+        ('VIII', 8), ('VII', 7), ('VI', 6), ('V', 5),
+        ('IV', 4), ('III', 3), ('II', 2), ('I', 1)
+    ]
+    for symbol, value in roman_symbols:
+        if num == value:
+            return symbol
+    return str(num)
+
 def run_clock():
     root = tk.Tk()
     root.title("Minimal Analog Clock")
@@ -48,6 +59,7 @@ def run_clock():
 
     show_numbers = tk.BooleanVar(value=True)
     modern_style = tk.BooleanVar(value=False)
+    use_roman = tk.BooleanVar(value=False)
 
     chk_numbers = tk.Checkbutton(root, text="Mostrar Números", variable=show_numbers,
                                  bg=bg_dark, fg=fg_dark,
@@ -59,6 +71,12 @@ def run_clock():
                                bg=bg_dark, fg=fg_dark,
                                selectcolor=bg_dark if dark_mode else bg_light)
     chk_style.place(x=10, y=60)
+
+    chk_roman = tk.Checkbutton(root, text="Números Romanos", variable=use_roman,
+                               bg=bg_dark, fg=fg_dark,
+                               selectcolor=bg_dark if dark_mode else bg_light,
+                               command=lambda: draw_clock_face())
+    chk_roman.place(x=10, y=85)
 
     def toggle_mode():
         nonlocal dark_mode
@@ -77,6 +95,9 @@ def run_clock():
                               fg=fg_dark if dark_mode else fg_light,
                               selectcolor=bg_dark if dark_mode else bg_light)
         chk_style.configure(bg=bg_dark if dark_mode else bg_light,
+                            fg=fg_dark if dark_mode else fg_light,
+                            selectcolor=bg_dark if dark_mode else bg_light)
+        chk_roman.configure(bg=bg_dark if dark_mode else bg_light,
                             fg=fg_dark if dark_mode else fg_light,
                             selectcolor=bg_dark if dark_mode else bg_light)
         draw_clock_face()
@@ -117,7 +138,9 @@ def run_clock():
                 x = cx + math.cos(angle) * (radius - 30)
                 y = cy + math.sin(angle) * (radius - 30)
                 color = fg_dark if dark_mode else fg_light
-                canvas.create_text(x, y, text=str(i), font=("Helvetica", 12, "bold"), fill=color, tags="face")
+                number = to_roman(i) if use_roman.get() else str(i)
+                canvas.create_text(x, y, text=number, font=("Helvetica", 12, "bold"), 
+                                   fill=color, tags="face")
 
         canvas.coords(center_dot, cx - 4, cy - 4, cx + 4, cy + 4)
 
